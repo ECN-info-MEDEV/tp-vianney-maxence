@@ -71,9 +71,9 @@ public class Picture {
         return max;
     }
     
-     public void write(String nomFichier) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(nomFichier));
+     public void write(String nomFichier) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(nomFichier));
+         try {
             // En-tête PGM
             bw.write("P2\n");
             bw.write("#\n");
@@ -90,59 +90,61 @@ public class Picture {
                 }
                 bw.write("\n");
             }
-            bw.close();
             System.out.println("L'image PGM a été écrite avec succès.");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            bw.close();
         }
     }
 
 
     public void read(String filePath) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(filePath));
-
         // Lecture de l'en-tête du fichier PGM
-        String head = br.readLine();
-        StringTokenizer shlass = new StringTokenizer(head, " ");
-        if (!shlass.nextToken().equals("P2")) {
-            throw new IOException("Le fichier PGM doit commencer par P2.");
-        }
-
-        // Ignorer les commentaires
-        String line=br.readLine();
-        while (line.startsWith("#")){
-            line = br.readLine();
-        }
-
-        // Lire les dimensions de l'image
-        StringTokenizer shlasser = new StringTokenizer(line, " ");
-        int width = Integer.parseInt(shlasser.nextToken());
-        int height = Integer.parseInt(shlasser.nextToken());
-        this.setHauteur(height);
-        this.setLargeur(width);
-
-        // Lire la valeur maximale de gris (ignorée pour l'instant)
-        String maxiGris = br.readLine();
-        
-
-        // Lire les données de l'image
-        pixels = new int[height][width];
-        int i=0;
-        int j=0;
-        String ligne = br.readLine();
-        while (ligne!=null){
-            StringTokenizer decoupe = new StringTokenizer(ligne, " ");
-            while (decoupe.hasMoreTokens()){
-                pixels[i][j]=Integer.parseInt(decoupe.nextToken());
-                j+=1;
-                if (j==width){
-                    j=0;
-                    i+=1;
-                }
+        try{
+            String head = br.readLine();
+            StringTokenizer shlass = new StringTokenizer(head, " ");
+            if (!shlass.nextToken().equals("P2")) {
+                throw new IOException("Le fichier PGM doit commencer par P2.");
             }
-            ligne = br.readLine();
+
+            // Ignorer les commentaires
+            String line=br.readLine();
+            while (line.startsWith("#")){
+                line = br.readLine();
+            }
+
+            // Lire les dimensions de l'image
+            StringTokenizer shlasser = new StringTokenizer(line, " ");
+            int width = Integer.parseInt(shlasser.nextToken());
+            int height = Integer.parseInt(shlasser.nextToken());
+            this.setHauteur(height);
+            this.setLargeur(width);
+
+            // Lire la valeur maximale de gris (ignorée pour l'instant)
+            String maxiGris = br.readLine();
+
+
+            // Lire les données de l'image
+            pixels = new int[height][width];
+            int i=0;
+            int j=0;
+            String ligne = br.readLine();
+            while (ligne!=null){
+                StringTokenizer decoupe = new StringTokenizer(ligne, " ");
+                while (decoupe.hasMoreTokens()){
+                    pixels[i][j]=Integer.parseInt(decoupe.nextToken());
+                    j+=1;
+                    if (j==width){
+                        j=0;
+                        i+=1;
+                    }
+                }
+                ligne = br.readLine();
+            }
         }
-        br.close();
+        finally{
+            br.close();
+        }
     }
     
     public Picture agrandissement(){
